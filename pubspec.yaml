@@ -28,6 +28,9 @@ dependencies:
   image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0
 
+  # SVG Vector Rendering for Custom App Icons
+  flutter_svg: ^2.0.10+1
+
   # Zero-Cost Communication & Slips
   url_launcher: ^6.3.0
   share_plus: ^9.0.0
@@ -51,4 +54,5 @@ flutter:
   assets:
     - .env
     - assets/icons/
+    - assets/icons/app_icons/
     - assets/images/
