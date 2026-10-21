@@ -7,7 +7,7 @@ import '../providers/dashboard_provider.dart';
 import '../widgets/dark_cockpit_header.dart';
 import '../widgets/filter_pill_bar.dart';
 import '../widgets/transaction_feed_item.dart';
-import '../../khata_1on1/presentation/screens/khata_detail_screen.dart';
+import '../../../khata_1on1/presentation/screens/khata_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   final VoidCallback? onAddExpenseTap;
