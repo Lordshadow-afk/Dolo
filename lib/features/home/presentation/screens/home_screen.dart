@@ -24,7 +24,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final summaryAsync = ref.watch(dashboardSummaryProvider);
+    final summaryAsync = ref.watch(dashboardProvider);
     final activeFilter = ref.watch(activeFilterProvider);
     final feedItems = ref.watch(filteredFeedProvider);
 

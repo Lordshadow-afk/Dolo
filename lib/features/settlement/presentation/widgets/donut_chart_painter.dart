@@ -26,11 +26,11 @@ class DonutChartPainter extends CustomPainter {
 
   DonutChartPainter({required this.categories, required this.total});
 
-  final List<Color> palette = [
-   AppColors.indigo,           
-    AppColors.mint,             
+  final List<Color> palette = const [
+    AppColors.indigo,
+    AppColors.mint,
     AppColors.rose,
-    AppColors.categoryPrintouts, 
+    AppColors.categoryPrintouts,
     AppColors.categoryUdhar,
   ];
 
@@ -44,7 +44,8 @@ class DonutChartPainter extends CustomPainter {
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
 
     double startAngle = -pi / 2;
     int index = 0;

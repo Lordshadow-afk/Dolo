@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/database/app_database.dart';
 import '../widgets/donut_chart_painter.dart';
 
-class SpendsScreen extends StatelessWidget {
+final spendsCategoryProvider = FutureProvider<Map<String, double>>((ref) async {
+  final db = await AppDatabase.instance.database;
+
+  final List<Map<String, dynamic>> result = await db.rawQuery('''
+    SELECT category, SUM(amount_rs) as total 
+    FROM expenses 
+    WHERE is_deleted = 0 
+    GROUP BY category
+  ''');
+
+  final Map<String, double> spends = {};
+  for (var row in result) {
+    final String category = row['category'] as String? ?? 'Other';
+    final double total = (row['total'] as num?)?.toDouble() ?? 0.0;
+    spends[category] = total;
+  }
+
+  return spends;
+});
+
+class SpendsScreen extends ConsumerWidget {
   const SpendsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spendsAsync = ref.watch(spendsCategoryProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // Student category spends summary
-    final Map<String, double> categorySpends = {
-      'Food': 4500,
-      'Hostel': 3200,
-      'Fuel': 1800,
-      'Printouts': 600,
-      'Udhar': 1200,
-    };
-
-    final double totalSpends =
-        categorySpends.values.fold(0, (sum, item) => sum + item);
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
@@ -29,43 +40,61 @@ class SpendsScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.screenHorizontalPadding),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-                border: Border.all(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                ),
+      body: spendsAsync.when(
+        data: (categorySpends) {
+          final double totalSpends =
+              categorySpends.values.fold(0, (sum, item) => sum + item);
+
+          if (categorySpends.isEmpty) {
+            return const Center(
+              child: Text(
+                'No expenses logged yet.',
+                style: TextStyle(color: AppColors.textLightMuted),
               ),
-              child: Column(
-                children: [
-                  SpendsDonutChart(categories: categorySpends),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Total Spent: Rs ${totalSpends.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.textDarkPrimary : AppColors.textLightPrimary,
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(AppDimensions.screenHorizontalPadding),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                    borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                     ),
                   ),
-                ],
-              ),
+                  child: Column(
+                    children: [
+                      SpendsDonutChart(categories: categorySpends),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Total Spent: Rs ${totalSpends.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppColors.textDarkPrimary : AppColors.textLightPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...categorySpends.entries.map((entry) => _CategoryLegendTile(
+                      category: entry.key,
+                      amount: entry.value,
+                      percentage: totalSpends > 0 ? (entry.value / totalSpends) * 100 : 0,
+                      isDark: isDark,
+                    )),
+              ],
             ),
-            const SizedBox(height: 20),
-            ...categorySpends.entries.map((entry) => _CategoryLegendTile(
-                  category: entry.key,
-                  amount: entry.value,
-                  percentage: totalSpends > 0 ? (entry.value / totalSpends) * 100 : 0,
-                  isDark: isDark,
-                )),
-          ],
-        ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error loading spends: $err')),
       ),
     );
   }
