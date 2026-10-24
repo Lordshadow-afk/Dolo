@@ -11,12 +11,12 @@ class UserProfile {
   final String avatarInitials;
 
   const UserProfile({
-    required this.name,
-    required this.phone,
-    required this.raastId,
-    required this.accountTitle,
-    required this.bankName,
-    required this.avatarInitials,
+    this.name = 'Ali Raza',
+    this.phone = '03001234567',
+    this.raastId = '03001234567',
+    this.accountTitle = 'Ali Raza',
+    this.bankName = 'SadaPay',
+    this.avatarInitials = 'AL',
   });
 
   UserProfile copyWith({
@@ -88,6 +88,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     required String name,
     required String phone,
     required String raastId,
+    String bankName = 'SadaPay',
   }) async {
     final initials = name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'AL';
     state = state.copyWith(
@@ -95,6 +96,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
       phone: phone,
       raastId: raastId,
       accountTitle: name,
+      bankName: bankName,
       avatarInitials: initials,
     );
 
@@ -114,3 +116,6 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     } catch (_) {}
   }
 }
+
+/// Convenience alias — used by settlement/profile screens as `profileProvider`.
+final profileProvider = userProfileProvider;

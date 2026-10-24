@@ -40,11 +40,7 @@ class AppIconNotifier extends StateNotifier<AppIconOption> {
     state = icon;
     try {
       final db = await _dbHelper.database;
-      await db.insert(
-        DbTables.appSettings,
-        {'key': 'active_app_icon', 'value': icon.id},
-        conflictAlgorithm: null, // Will replace on conflict if using raw query or update
-      );
+      // INSERT OR REPLACE to upsert the single settings row
       await db.rawInsert('''
         INSERT OR REPLACE INTO ${DbTables.appSettings} (key, value)
         VALUES ('active_app_icon', ?)

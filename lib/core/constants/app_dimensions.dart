@@ -13,6 +13,12 @@ class AppDimensions {
   static const double pillRadius = 999.0;
   static const double ctaRadius = 16.0;
 
+  // Aliases used by settle_up_sheet & other screens
+  static const double radiusSM = squircleSmallRadius;   // 14
+  static const double radiusMD = squircleMediumRadius;  // 18
+  static const double radiusLG = cardRadius;            // 18
+  static const double radiusXL = surfaceSheetRadius;    // 32
+
   // Heights & Sizes
   static const double pillHeight = 44.0;
   static const double ctaHeight = 52.0;
